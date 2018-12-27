@@ -9,6 +9,8 @@
   Release:
   ========
   0.1   - 26.12.2018 (nm) - Erste Version
+  0.2   - 27.12.2018 (nm) - "include-only" als Mischung von 
+                            "exclude=all include=<taglist>" einbaut.
 
   WICHTIG:
   ========
@@ -19,7 +21,7 @@
     Bei *nix und macOS Systemen muss diese Datei als "executable" markiert
     sein!
     Also bitte ein
-      > chmod a+x style.py
+      > chmod a+x include_exclude.py
    ausfuehren!
 
 
@@ -42,7 +44,7 @@
 
 
 import panflute as pf  # panflute fuer den pandoc AST
-import logging  # logging fuer die 'typography.log'-Datei
+import logging  # logging fuer die 'include_exclude.log'-Datei
 
 exclude_flag = False
 
@@ -57,17 +59,12 @@ def prepare(doc):
     doc.tag_list = list(doc.get_metadata('tag', default=["all"]))
     logging.debug("Tags: "+str(doc.tag_list))
 
-def intersection_n(lst1, lst2): 
-    return list(set(lst1) & set(lst2))
 
-# Python program to illustrate the intersection 
-# of two lists in most simple way 
 def intersection(lst1, lst2): 
-    lst3 = [value for value in lst1 if value in lst2] 
-    return lst3
-
-def remove_all(e, doc):
-    return []
+    # Use of hybrid method for O(n) ...
+    temp = set(lst2) 
+    lst3 = [value for value in lst1 if value in temp] 
+    return lst3 
 
 def action(e, doc):
     """Main action function for panflute.
@@ -91,6 +88,10 @@ def action(e, doc):
             
         if "exclude" in e.attributes:
             exclude_list = e.attributes["exclude"].split(",")
+            
+        uf "include-only" in e.attributes:
+            exclude_list = ["all"]
+            include_list =  e.attributes["include-only"].split(",")
 
         logging.debug("Tag-list    : "+str(doc.tag_list))
         logging.debug("Include-list: "+str(include_list))
@@ -135,7 +136,6 @@ def main(doc=None):
     logging.debug("End style.py")
     
     return ret
-
 
 
 """
