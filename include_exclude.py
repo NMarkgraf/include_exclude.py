@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """
-  Quick-Typographie-Filter: include_exclude.py
+  Quick-Pandoc-Filter: include_exclude.py
 
-  (C)opyleft in 2018 by Norman Markgraf (nmarkgraf@hotmail.com)
+  (C)opyleft in 2018,19 by Norman Markgraf (nmarkgraf@hotmail.com)
 
   Release:
   ========
   0.1   - 26.12.2018 (nm) - Erste Version
   0.2   - 27.12.2018 (nm) - "include-only" als Mischung von 
                             "exclude=all include=<taglist>" einbaut.
+  0.3   - 03.01.2019 (nm) - Bugfixe
 
   WICHTIG:
   ========
@@ -51,7 +52,17 @@ exclude_flag = False
 """
  Eine Log-Datei "include_exclude.log" erzeugen um einfacher zu debuggen
 """
-DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
+if os.path.exists("include_exclude.loglevel.debug"):
+    DEBUGLEVEL = logging.DEBUG
+elif os.path.exists("include_exclude.loglevel.info"):
+     DEBUGLEVEL = logging.INFO
+elif os.path.exists("include_exclude.loglevel.warning"):
+     DEBUGLEVEL = logging.WARNING
+elif os.path.exists("include_exclude.loglevel.error"):
+     DEBUGLEVEL = logging.ERROR
+else:
+    DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
+
 logging.basicConfig(filename='include_exclude.log', level=DEBUGLEVEL)
 
 
@@ -66,19 +77,27 @@ def intersection(lst1, lst2):
     lst3 = [value for value in lst1 if value in temp] 
     return lst3 
 
+
+def intersection_not_empty(lst1, lst2):
+    """Probe if the intersection of both lists is **not** empty.
+
+    :param lst1: first list
+    :param lst2: second list
+    :return: True, if the intersection ist **not** empty.
+    """
+    return len(intersection(lst1, lst2) > 0
+
 def action(e, doc):
     """Main action function for panflute.
     """
     global exclude_flag
     
     logging.debug("-"*50)
-    # logging.debug("current:" + str(e)+" next:"+str(e.next if getattr(e, "next", None) is not None else "---"))
     logging.debug("current:" + str(e))
     ret = e
     
     if isinstance(e, pf.Header):
         logging.debug("Header found: "+str(e.content))
-        logging.debug("------------- Old exclude_flag: "+str(exclude_flag))
         exclude_flag = False
         include_list = []
         exclude_list = []
@@ -89,26 +108,29 @@ def action(e, doc):
         if "exclude" in e.attributes:
             exclude_list = e.attributes["exclude"].split(",")
             
-        uf "include-only" in e.attributes:
+        if "include-only" in e.attributes:
             exclude_list = ["all"]
             include_list =  e.attributes["include-only"].split(",")
+
+        # Ersetze "*" durch "all" in den Listen.
+        exclude_list = ["all" if x="*" else x for x in exclude_list]
+        include_list = ["all" if x="*" else x for x in include_list]
 
         logging.debug("Tag-list    : "+str(doc.tag_list))
         logging.debug("Include-list: "+str(include_list))
         logging.debug("Exclude-list: "+str(exclude_list))
 
+
         if "all" in exclude_list:
             exclude_flag = True
-            logging.debug("!------------ New exclude_flag: "+str(exclude_flag))
             ret = []
         
-        if len(intersection(doc.tag_list, include_list)) > 0:
+        if intersection_not_empty(doc.tag_list, include_list):
             exclude_flag = False
             ret = e
 
-        if len(intersection(doc.tag_list, exclude_list)) > 0:
+        if intersection_not_empty(doc.tag_list, exclude_list):
             exclude_flag = True
-            logging.debug("!------------ New exclude_flag: "+str(exclude_flag))
             ret = []
             
         logging.debug("------------- New exclude_flag: "+str(exclude_flag))
@@ -122,8 +144,14 @@ def action(e, doc):
     logging.debug("Next found: "+str(e))
     logging.debug("return:"+str(ret))
     return ret
-            
+
+
 def finalize(doc):
+    """Do nothing after action, but it is necessary for 'autofilter'.
+
+        :param doc:
+        :return:
+    """
     pass
 
 
@@ -131,9 +159,9 @@ def main(doc=None):
     """main function.
     """
 
-    logging.debug("Start style.py")
+    logging.debug("Start pandoc filter 'include_exclude'")
     ret = pf.run_filter(action, prepare=prepare, finalize=finalize, doc=doc)
-    logging.debug("End style.py")
+    logging.debug("End pandoc filter 'include_exclude'")
     
     return ret
 
