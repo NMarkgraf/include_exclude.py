@@ -45,6 +45,7 @@
 
 
 import panflute as pf  # panflute fuer den pandoc AST
+import os as os  # check if file exists.
 import logging  # logging fuer die 'include_exclude.log'-Datei
 
 exclude_flag = False
@@ -55,11 +56,11 @@ exclude_flag = False
 if os.path.exists("include_exclude.loglevel.debug"):
     DEBUGLEVEL = logging.DEBUG
 elif os.path.exists("include_exclude.loglevel.info"):
-     DEBUGLEVEL = logging.INFO
+    DEBUGLEVEL = logging.INFO
 elif os.path.exists("include_exclude.loglevel.warning"):
-     DEBUGLEVEL = logging.WARNING
+    DEBUGLEVEL = logging.WARNING
 elif os.path.exists("include_exclude.loglevel.error"):
-     DEBUGLEVEL = logging.ERROR
+    DEBUGLEVEL = logging.ERROR
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
@@ -85,7 +86,8 @@ def intersection_not_empty(lst1, lst2):
     :param lst2: second list
     :return: True, if the intersection ist **not** empty.
     """
-    return len(intersection(lst1, lst2) > 0
+    return len(intersection(lst1, lst2)) > 0
+
 
 def action(e, doc):
     """Main action function for panflute.
@@ -113,8 +115,8 @@ def action(e, doc):
             include_list =  e.attributes["include-only"].split(",")
 
         # Ersetze "*" durch "all" in den Listen.
-        exclude_list = ["all" if x="*" else x for x in exclude_list]
-        include_list = ["all" if x="*" else x for x in include_list]
+        exclude_list = ["all" if x=="*" else x for x in exclude_list]
+        include_list = ["all" if x=="*" else x for x in include_list]
 
         logging.debug("Tag-list    : "+str(doc.tag_list))
         logging.debug("Include-list: "+str(include_list))
