@@ -22,7 +22,7 @@
   ==============
   Um die unit tests auszuführen kann man im Terminal den Befehl
 
-    > python3 -m unittest test/include_exclude_unittest.py
+    > python3 -m unittest discover -s test/ -p *_unittest.py
 
   im Hauptverzeichnis des Projektes eingeben!
 
@@ -53,33 +53,33 @@ import unittest
 import io
 
 # sys.path.append('..')
-import include_exclude
-
+from include_exclude import *
+ 
 
 class IncludeExcludeTest(unittest.TestCase):
 
     def test_intersection1(self):
         lst1 = []
         lst2 = []
-        self.assertTrue(intersection_not_empty(lst1, lst2))
+        self.assertFalse(intersection_not_empty(lst1, lst2))
 
 
     def test_intersection2(self):
         lst1 = ["*"]
         lst2 = []
-        self.assertTrue(intersection_not_empty(lst1, lst2))
+        self.assertFalse(intersection_not_empty(lst1, lst2))
 
 
     def test_intersection3(self):
         lst1 = []
         lst2 = ["*"]
-        self.assertTrue(intersection_not_empty(lst1, lst2))
+        self.assertFalse(intersection_not_empty(lst1, lst2))
 
 
-    def test_intersection3(self):
+    def test_intersection4(self):
         lst1 = ["*"]
         lst2 = ["*"]
-        self.assertFalse(intersection_not_empty(lst1, lst2))
+        self.assertTrue(intersection_not_empty(lst1, lst2))
 
  
 if __name__ == "__main__":
