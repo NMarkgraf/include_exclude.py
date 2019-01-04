@@ -5,7 +5,7 @@
 [![Minimal Python needed: 3.5+](https://img.shields.io/badge/Python-3.5%2B-brightgreen.svg)](https://www.python.org)
 
 
-# include_exclude.py
+# include_exclude.py 
 
 A Pandoc filter, based on panflute, to include or exclude tagged slides.
 
