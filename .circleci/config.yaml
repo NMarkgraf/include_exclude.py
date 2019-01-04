@@ -1,0 +1,24 @@
+version: 2
+
+jobs:
+    build:
+        docker:
+            - image: nmarkgraf/python-pandoc:1.0
+        steps:
+            - checkout
+            - run:
+                name: Activate venv
+                command: |
+                    python3 -m venv ~/venv
+                    source ~/venv/bin/activate
+            - run:
+                name: Update Python pip and install requirements (panflute)
+                command: |
+                    source ~/venv/bin/activate
+                    pip install --upgrade pip
+                    pip install panflute
+            - run:
+                name: Run tests
+                command: |
+                    source ~/venv/bin/activate
+                    python3 -m unittest test/include_exclude_unittest.py
