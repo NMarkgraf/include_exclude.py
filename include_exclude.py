@@ -12,6 +12,8 @@
   0.2   - 27.12.2018 (nm) - "include-only" als Mischung von 
                             "exclude=all include=<taglist>" einbaut.
   0.3   - 03.01.2019 (nm) - Bugfixe
+  0.4   - 21.02.2019 (nm) - Bugfixe. "include=yes, no , foo" wird nun 
+                            richtig zu "['yes','no','foo']" gewandelt.
 
   WICHTIG:
   ========
@@ -105,14 +107,14 @@ def action(e, doc):
         exclude_list = []
         
         if "include" in e.attributes:
-            include_list = e.attributes["include"].split(",")
+            include_list = list(map(lambda x: x.strip(), e.attributes["include"].split(",")))
             
         if "exclude" in e.attributes:
-            exclude_list = e.attributes["exclude"].split(",")
+            exclude_list = list(map(lambda x: x.strip(), e.attributes["exclude"].split(",")))
             
         if "include-only" in e.attributes:
             exclude_list = ["all"]
-            include_list =  e.attributes["include-only"].split(",")
+            include_list = list(map(lambda x: x.strip(), e.attributes["include-only"].split(",")))
 
         # Ersetze "*" durch "all" in den Listen.
         exclude_list = ["all" if x=="*" else x for x in exclude_list]
@@ -126,22 +128,29 @@ def action(e, doc):
         if "all" in exclude_list:
             exclude_flag = True
             ret = []
+            logging.debug("Set flag to true and empty return! (ALL)")
         
         if intersection_not_empty(doc.tag_list, include_list):
             exclude_flag = False
             ret = e
+            logging.debug("Set flag to false and return!")
 
         if intersection_not_empty(doc.tag_list, exclude_list):
             exclude_flag = True
             ret = []
+            logging.debug("Set flag to true and empty return!")
+
             
         logging.debug("------------- New exclude_flag: "+str(exclude_flag))
         
-    elif exclude_flag and not isinstance(e.next, pf.Header):
+    elif exclude_flag:
         logging.debug("next found: "+str(e))
-        ret = []
-    elif exclude_flag and isinstance(e.next, pf.Header):
-        exclude_flag = False
+        if isinstance(e.next, pf.Header):
+            exclude_flag = False
+            logging.debug("set flag to false!")
+        else:
+            ret = []
+            logging.debug("set return to empty!")
 
     logging.debug("Next found: "+str(e))
     logging.debug("return:"+str(ret))
