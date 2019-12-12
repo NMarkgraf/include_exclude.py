@@ -15,7 +15,7 @@ A Pandoc filter, based on panflute, to include or exclude tagged slides.
 
 ```
 
-## A slide {include=* exclcude=tagname}
+## A slide {include=all exclude=tagname}
 
 This slide will allways be displayed, but not in `tagname` mode!
 
@@ -25,7 +25,7 @@ This slide will allways be displayed, but not in `tagname` mode!
 
 ```
 
-## A slide {include=tagname exclude=*}
+## A slide {include=tagname exclude=all}
 
 This slide will never be displayed, but not in `tagname` mode!
 
