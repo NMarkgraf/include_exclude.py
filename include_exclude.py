@@ -14,6 +14,8 @@
   0.3   - 03.01.2019 (nm) - Bugfixe
   0.4   - 21.02.2019 (nm) - Bugfixe. "include=yes, no , foo" wird nun 
                             richtig zu "['yes','no','foo']" gewandelt.
+  0.5   - 19.02.2020 (nm) - Bugfix. Endlich auch am Ende löschen.
+                            Richtig und fehlerfrei!
 
   WICHTIG:
   ========
@@ -66,6 +68,8 @@ elif os.path.exists("include_exclude.loglevel.error"):
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
+DEBUGLEVEL = logging.DEBUG
+
 logging.basicConfig(filename='include_exclude.log', level=DEBUGLEVEL)
 
 
@@ -98,6 +102,9 @@ def action(e, doc):
     
     logging.debug("-"*50)
     logging.debug("current:" + str(e))
+    logging.debug("type: "+str(type(e)))
+    logging.debug("current.doc:" + str(e.doc))
+    logging.debug("current doc type: "+str(type(e.doc)))
     ret = e
     
     if isinstance(e, pf.Header):
@@ -145,14 +152,18 @@ def action(e, doc):
         
     elif exclude_flag:
         logging.debug("next found: "+str(e))
-        if isinstance(e.next, pf.Header):
+    elif exclude_flag:
+        if isinstance(e.next, pf.Header) or e.next == None:
             exclude_flag = False
             logging.debug("set flag to false!")
         else:
             ret = []
             logging.debug("set return to empty!")
 
+    
     logging.debug("Next found: "+str(e))
+    logging.debug("Next found: "+str(type(e)))
+
     logging.debug("return:"+str(ret))
     return ret
 
