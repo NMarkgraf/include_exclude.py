@@ -53,7 +53,7 @@ import panflute as pf  # panflute fuer den pandoc AST
 import os as os  # check if file exists.
 import logging  # logging fuer die 'include_exclude.log'-Datei
 
-exclude_flag = False
+exclude_flag = None
 
 """
  Eine Log-Datei "include_exclude.log" erzeugen um einfacher zu debuggen
@@ -69,14 +69,17 @@ elif os.path.exists("include_exclude.loglevel.error"):
 else:
     DEBUGLEVEL = logging.ERROR  # .ERROR or .DEBUG  or .INFO
 
-DEBUGLEVEL = logging.DEBUG
+DEBUGLEVEL = logging.ERROR
 
 logging.basicConfig(filename='include_exclude.log', level=DEBUGLEVEL)
 
 
 def prepare(doc):
+    global exclude_flag
     doc.tag_list = list(doc.get_metadata('tag', default=["all"]))
     logging.debug("Tags: "+str(doc.tag_list))
+    logging.info("Set exclude_flag to false!")
+    exclude_flag = False
 
 
 def intersection(lst1, lst2): 
@@ -109,7 +112,7 @@ def action(e, doc):
     ret = e
     
     if isinstance(e, pf.Header):
-        logging.debug("Header found: "+str(e.content))
+        logging.info("Header found: "+str(e.content)+" ("+str(exclude_flag)+")")
         exclude_flag = False
         include_list = []
         exclude_list = []
@@ -128,38 +131,41 @@ def action(e, doc):
         exclude_list = ["all" if x=="*" else x for x in exclude_list]
         include_list = ["all" if x=="*" else x for x in include_list]
 
-        logging.debug("Tag-list    : "+str(doc.tag_list))
-        logging.debug("Include-list: "+str(include_list))
-        logging.debug("Exclude-list: "+str(exclude_list))
+        logging.info("Tag-list    : "+str(doc.tag_list))
+        logging.info("Include-list: "+str(include_list))
+        logging.info("Exclude-list: "+str(exclude_list))
 
 
         if "all" in exclude_list:
             exclude_flag = True
             ret = []
-            logging.debug("Set flag to true and empty return! (ALL)")
+            logging.info("Set flag to true and empty return! (ALL)")
         
         if intersection_not_empty(doc.tag_list, include_list):
             exclude_flag = False
             ret = e
-            logging.debug("Set flag to false and return!")
+            logging.info("Set flag to false and return!")
 
         if intersection_not_empty(doc.tag_list, exclude_list):
             exclude_flag = True
             ret = []
-            logging.debug("Set flag to true and empty return!")
+            logging.info("Set flag to true and empty return!")
 
             
         logging.debug("------------- New exclude_flag: "+str(exclude_flag))
         
     elif exclude_flag:
-        logging.debug("next found: "+str(e))
-    elif exclude_flag:
-        if isinstance(e.next, pf.Header) or e.next == None:
+        if isinstance(e.next, pf.Header):
             exclude_flag = False
-            logging.debug("set flag to false!")
-        else:
+            logging.info("set flag to false! (Header)")
+        #if  e.next == None:
+            # exclude_flag = False
+            # logging.info("set flag to false! (None)")
+        if exclude_flag:
+            logging.info("return should be:"+str(ret))
             ret = []
-            logging.debug("set return to empty!")
+            logging.info("set return to empty!"+str(ret))
+            return []
 
     
     logging.debug("Next found: "+str(e))
