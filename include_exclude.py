@@ -4,7 +4,7 @@
 """
   Quick-Pandoc-Filter: include_exclude.py
 
-  (C)opyleft in 2018,19 by Norman Markgraf (nmarkgraf@hotmail.com)
+  (C)opyleft in 2018-2020 by Norman Markgraf (nmarkgraf@hotmail.com)
 
   Release:
   ========
@@ -16,6 +16,7 @@
                             richtig zu "['yes','no','foo']" gewandelt.
   0.5   - 19.02.2020 (nm) - Bugfix. Endlich auch am Ende löschen.
                             Richtig und fehlerfrei!
+  0.6   - 25.08.2020 (nm) - Versuch einer Fehlerbehebung.
 
   WICHTIG:
   ========
