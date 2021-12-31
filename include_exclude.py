@@ -24,6 +24,7 @@ release = "1.1"
   0.6   - 25.08.2020 (nm) - Versuch einer Fehlerbehebung.
   1.0   - 14.07.2021 (nm) - Kleinere Aktualisierungen
   1.1   - 29.07.2021 (nm) - Bugfix. exclude-only funktioniert nun endlich.
+  1.1.1   31.12.2021 (nm) - Tiny bug fixed 
 
   WICHTIG:
   ========
@@ -115,7 +116,7 @@ def action(e, doc):
     logging.debug(f"current: {str(e)}")
     logging.debug(f"type: {str(type(e))}")
     logging.debug(f"current.doc: {str(e.doc)}")
-    logging.debug("fcurrent doc type: {str(type(e.doc))}")
+    logging.debug(f"current doc type: {str(type(e.doc))}")
     ret = e
 
     if isinstance(e, pf.Header):
