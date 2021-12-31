@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-release = "1.1"
+release = "1.2"
 """
   Quick-Pandoc-Filter: include_exclude.py
 
@@ -25,6 +25,9 @@ release = "1.1"
   1.0   - 14.07.2021 (nm) - Kleinere Aktualisierungen
   1.1   - 29.07.2021 (nm) - Bugfix. exclude-only funktioniert nun endlich.
   1.1.1   31.12.2021 (nm) - Tiny bug fixed 
+  1.2     31.12.2021 (nm) - Jetzt können wir auch Tabellen richtig löschen
+                            und auch das "letzter Eintrag" Problem scheint
+                            gelöst!
 
   WICHTIG:
   ========
@@ -169,7 +172,10 @@ def action(e, doc):
         logging.info(f"return should be:{str(ret)}")
         ret = []
         logging.info(f"set return to empty! Prove: {str(ret)}")
-        
+        if isinstance(e, pf.Caption):
+            ret = pf.Caption()  # Workaround? - I works, but why?
+        if isinstance(e, pf.Doc):
+            ret = None
         if isinstance(e.next, pf.Header):
             exclude_flag = False
             logging.info("set flag to false! (Header)")
@@ -177,8 +183,12 @@ def action(e, doc):
             # exclude_flag = False
             # logging.info("set flag to false! (None)")
 
-    logging.debug(f"Next found: {str(e)}")
-    logging.debug(f"Next found: {str(type(e))}")
+    logging.debug(f"Current: {str(e)}")
+    logging.debug(f"Current: {str(type(e))}")
+    invert_op = getattr(e, "next", None)
+    if callable(invert_op):
+        logging.debug(f"Next found: {str(e.next)}")
+        logging.debug(f"Next found: {str(type(e.next))}")
 
     logging.debug(f"return: {str(ret)}")
     return ret
